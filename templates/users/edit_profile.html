@@ -1,0 +1,29 @@
+<form method="post" action="{{ url_for('profile') }}">
+  {{ form.hidden_tag() }}
+  <br>
+  <div class="form-group">
+      {{ form.username.label }} {{ form.username() }}
+  </div>
+  <br>
+  <div class="form-group">
+      {{ form.email.label }} {{ form.email() }}
+  </div>
+  <br>
+  <div class="form-group">
+      {{ form.image_url.label }} {{ form.image_url() }}
+  </div>
+  <br>
+  <div class="form-group">
+      {{ form.header_image_url.label }} {{ form.header_image_url() }}
+  </div>
+  <br>
+  <div class="form-group">
+      {{ form.bio.label }} {{ form.bio() }}
+  </div>
+  <br>
+  <div class="form-group">
+      {{ form.password.label }} {{ form.password() }}
+  </div>
+  <br>
+  <button type="submit" class="btn btn-primary">Update!</button>
+</form>
