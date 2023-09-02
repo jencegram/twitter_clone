@@ -8,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
-
 class Follows(db.Model):
     """Connection of a follower <-> followed_user."""
 
@@ -110,10 +109,10 @@ class User(db.Model):
         secondaryjoin=(Follows.user_being_followed_id == id)
     )
 
-    likes = db.relationship(
-        'Message',
-        secondary="likes"
-    )
+    liked_messages = db.relationship(
+    "Message", secondary="likes", backref=db.backref("likes", lazy="dynamic"), lazy="dynamic"
+)
+
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"

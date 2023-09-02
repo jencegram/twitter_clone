@@ -1,8 +1,9 @@
 import os
 
-from flask import Flask, render_template, request, flash, redirect, session, g
+from flask import Flask, render_template, request, flash, redirect, session, g, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from flask_wtf.csrf import CSRFProtect
 
 from forms import UserAddForm, LoginForm, MessageForm, ProfileUpdateForm
 from models import db, connect_db, User, Message
@@ -10,6 +11,8 @@ from models import db, connect_db, User, Message
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
+
+csrf = CSRFProtect(app)
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
@@ -117,7 +120,7 @@ def logout():
     flash("You have successfully logged out.", "success")
     return redirect("/login")
 
-    # IMPLEMENT THIS
+
 
 
 ##############################################################################
@@ -307,6 +310,36 @@ def messages_destroy(message_id):
 
     return redirect(f"/users/{g.user.id}")
 
+@app.route('/messages/<int:message_id>/like', methods=['POST'])
+def message_like(message_id):
+    message = Message.query.get_or_404(message_id)
+
+    if message not in g.user.liked_messages and message.user != g.user:
+        g.user.liked_messages.append(message)
+        db.session.commit()
+
+    return redirect(url_for('homepage'))
+
+@app.route('/messages/<int:message_id>/unlike', methods=['POST'])
+def unlike_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    print("Message ID:", message.id)
+    print("Current User:", g.user)
+
+    if message in g.user.liked_messages:
+        g.user.liked_messages.remove(message)
+        db.session.commit()
+
+    print("Liked Messages after unlike:", g.user.liked_messages)
+    return redirect(url_for('homepage'))
+
+
+
+@app.route('/users/<int:user_id>/liked')
+def show_liked_warbles(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template('users/liked_warbles.html', user=user)
+
 
 ##############################################################################
 # Homepage and error pages
@@ -332,10 +365,25 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        message_form = MessageForm()  # Create an instance of MessageForm
+
+        return render_template('home.html', messages=messages, form=message_form)
 
     else:
         return render_template('home-anon.html')
+
+
+
+# Rest of your existing route functions ...
+
+@app.after_request
+def add_header(req):
+    """Add non-caching headers on every request."""
+    req.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    req.headers["Pragma"] = "no-cache"
+    req.headers["Expires"] = "0"
+    req.headers['Cache-Control'] = 'public, max-age=0'
+    return req
 
 
 ##############################################################################

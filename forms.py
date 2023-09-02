@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField
+from wtforms import StringField, PasswordField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Email, Length
 
 
@@ -34,3 +34,7 @@ class ProfileUpdateForm(FlaskForm):
     header_image_url = StringField("(Optional) Header Image URL")
     bio = TextAreaField("Bio")
     password = PasswordField("Current Password (required for changes)", validators=[DataRequired()])
+
+class MyForm(FlaskForm):
+    name = StringField("Name")
+    submit = SubmitField("Submit")

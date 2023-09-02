@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>{{ user.username }}'s Liked Messages</h2>
+    
+    <ul>
+        {% for message in user.liked_messages %}
+            <li>
+                {{ message.text }} by {{ message.user.username }}
+                <i class="fa fa-star text-primary" aria-hidden="true"></i>
+            </li>
+        {% else %}
+            <li>No liked messages.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
